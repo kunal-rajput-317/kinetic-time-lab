@@ -101,10 +101,10 @@ export const Timer = () => {
         
         <div className="relative z-10">
           <div className="flex items-center justify-center gap-3 mb-12">
-            <div className="p-3 rounded-2xl bg-accent/10 border border-accent/20">
+            <div className="p-3 rounded-2xl bg-accent/20 border border-accent/30">
               <AlarmClock className="w-7 h-7 text-accent" />
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">Countdown Timer</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-card-foreground">Countdown Timer</h2>
           </div>
 
           {isEditing ? (
@@ -116,7 +116,7 @@ export const Timer = () => {
                   { label: "Seconds", value: seconds, type: "seconds" as const, max: 59 },
                 ].map(({ label, value, type, max }) => (
                   <div key={type} className="space-y-3">
-                    <label className="block text-sm font-semibold text-muted-foreground text-center uppercase tracking-wide">
+                    <label className="block text-sm font-semibold text-card-foreground/80 text-center uppercase tracking-wide">
                       {label}
                     </label>
                     <div className="flex flex-col gap-2">

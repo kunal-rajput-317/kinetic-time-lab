@@ -64,10 +64,10 @@ export const Stopwatch = () => {
         
         <div className="relative z-10">
           <div className="flex items-center justify-center gap-3 mb-12">
-            <div className="p-3 rounded-2xl bg-secondary/10 border border-secondary/20">
+            <div className="p-3 rounded-2xl bg-secondary/20 border border-secondary/30">
               <Timer className="w-7 h-7 text-secondary" />
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">Stopwatch</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-card-foreground">Stopwatch</h2>
           </div>
 
           <div className="flex flex-col items-center justify-center mb-10">
@@ -148,8 +148,8 @@ export const Stopwatch = () => {
           {laps.length > 0 && (
             <div className="glass-card p-5 max-h-80 overflow-y-auto">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-foreground">Lap Times</h3>
-                <span className="text-sm text-muted-foreground font-medium">
+                <h3 className="text-xl font-bold text-card-foreground">Lap Times</h3>
+                <span className="text-sm text-card-foreground/70 font-medium">
                   {laps.length} {laps.length === 1 ? "lap" : "laps"}
                 </span>
               </div>
@@ -161,23 +161,23 @@ export const Stopwatch = () => {
                   return (
                     <div
                       key={index}
-                      className="flex justify-between items-center p-4 bg-muted/30 rounded-xl hover:bg-muted/50 transition-all animate-slide-in border border-border/20"
+                      className="flex justify-between items-center p-4 bg-card-foreground/10 rounded-xl hover:bg-card-foreground/20 transition-all animate-slide-in border border-card-foreground/20"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center">
                           <span className="text-sm font-bold text-primary">
                             {laps.length - index}
                           </span>
                         </div>
-                        <span className="font-semibold text-foreground">
+                        <span className="font-semibold text-card-foreground">
                           Lap {laps.length - index}
                         </span>
                       </div>
                       <div className="text-right">
-                        <div className="digital-display text-lg text-primary font-bold">
+                        <div className="digital-display text-lg text-secondary font-bold">
                           {hours}:{minutes}:{seconds}.{milliseconds}
                         </div>
-                        <div className="digital-display text-xs text-muted-foreground">
+                        <div className="digital-display text-xs text-card-foreground/60">
                           +{diffFormatted.minutes}:{diffFormatted.seconds}.{diffFormatted.milliseconds}
                         </div>
                       </div>

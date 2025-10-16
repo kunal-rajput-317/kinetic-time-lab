@@ -33,12 +33,12 @@ const Index = () => {
           <div className="text-center mb-12 animate-fade-in">
             <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full glass-card border-2 border-primary/30">
               <Sparkles className="w-4 h-4 text-primary animate-pulse" />
-              <span className="text-sm font-semibold text-primary">Professional Time Management</span>
+              <span className="text-sm font-semibold text-foreground">Professional Time Management</span>
             </div>
-            <h1 className="text-5xl md:text-7xl font-black mb-4 digital-display glow-text bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+            <h1 className="text-5xl md:text-7xl font-black mb-4 digital-display text-foreground drop-shadow-2xl">
               Digital Clock
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground font-medium max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-foreground/80 font-medium max-w-2xl mx-auto">
               Track time with precision, style, and elegance
             </p>
           </div>
@@ -96,9 +96,9 @@ const Index = () => {
 
         {/* Footer */}
         <footer className="mt-16 text-center animate-fade-in">
-          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full glass-card border border-border/30">
+          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full glass-card border border-foreground/20">
             <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <p className="text-sm text-muted-foreground font-medium">
+            <p className="text-sm text-foreground/80 font-medium">
               Built with precision and passion
             </p>
           </div>

@@ -53,10 +53,10 @@ export const ClockDisplay = () => {
         
         <div className="relative z-10">
           <div className="flex items-center justify-center gap-3 mb-12">
-            <div className="p-3 rounded-2xl bg-primary/10 border border-primary/20">
+            <div className="p-3 rounded-2xl bg-primary/20 border border-primary/30">
               <ClockIcon className="w-7 h-7 text-primary" />
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">Current Time</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-card-foreground">Current Time</h2>
           </div>
 
           <div className="flex items-center justify-center gap-3 md:gap-6 mb-10">
@@ -88,9 +88,9 @@ export const ClockDisplay = () => {
             )}
           </div>
 
-          <div className="flex items-center justify-center gap-3 mb-8 p-4 rounded-2xl bg-muted/20 border border-border/30 max-w-lg mx-auto">
-            <Calendar className="w-5 h-5 text-primary" />
-            <p className="text-lg md:text-xl text-foreground font-medium">
+          <div className="flex items-center justify-center gap-3 mb-8 p-4 rounded-2xl bg-card-foreground/10 border border-card-foreground/20 max-w-lg mx-auto">
+            <Calendar className="w-5 h-5 text-secondary" />
+            <p className="text-lg md:text-xl text-card-foreground font-medium">
               {formatDate(time)}
             </p>
           </div>

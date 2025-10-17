@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ClockDisplay } from "@/components/ClockDisplay";
+import { AnalogClock } from "@/components/AnalogClock";
 import { Stopwatch } from "@/components/Stopwatch";
 import { Timer } from "@/components/Timer";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -36,7 +36,7 @@ const Index = () => {
               <span className="text-sm font-semibold text-foreground">Professional Time Management</span>
             </div>
             <h1 className="text-5xl md:text-7xl font-black mb-4 digital-display text-foreground drop-shadow-2xl">
-              Digital Clock
+              Time Master
             </h1>
             <p className="text-lg md:text-xl text-foreground/80 font-medium max-w-2xl mx-auto">
               Track time with precision, style, and elegance
@@ -88,7 +88,7 @@ const Index = () => {
 
           {/* Tab Content */}
           <div className="transition-all duration-500">
-            {activeTab === "clock" && <ClockDisplay />}
+            {activeTab === "clock" && <AnalogClock />}
             {activeTab === "stopwatch" && <Stopwatch />}
             {activeTab === "timer" && <Timer />}
           </div>

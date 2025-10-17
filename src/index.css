@@ -187,4 +187,13 @@ All colors MUST be HSL.
       transform: translateY(-30px) rotate(180deg);
     }
   }
+
+  @keyframes pendulum {
+    0%, 100% {
+      transform: rotate(-15deg);
+    }
+    50% {
+      transform: rotate(15deg);
+    }
+  }
 }

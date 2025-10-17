@@ -44,9 +44,9 @@ export const AnalogClock = () => {
           </div>
 
           {/* Clock Container */}
-          <div className="flex flex-col items-center gap-8">
+          <div className="flex flex-col items-center">
             {/* Clock Face */}
-            <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full border-8 border-primary/30 bg-card/50 shadow-2xl backdrop-blur-sm">
+            <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full border-8 border-primary/30 bg-card/50 shadow-2xl backdrop-blur-sm z-10">
               {/* Clock center decorative ring */}
               <div className="absolute inset-4 rounded-full border-2 border-secondary/20" />
               
@@ -119,21 +119,29 @@ export const AnalogClock = () => {
               <div className="absolute left-1/2 top-1/2 w-4 h-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary border-2 border-card shadow-lg" />
             </div>
 
-            {/* Pendulum */}
-            <div className="relative w-32 h-40 flex justify-center">
-              <div
-                className="absolute top-0 w-1 h-32 bg-gradient-to-b from-card-foreground to-primary rounded-full origin-top animate-pendulum"
-                style={{
-                  animation: 'pendulum 2s ease-in-out infinite',
-                }}
-              />
-              <div
-                className="absolute w-8 h-8 rounded-full bg-primary border-4 border-primary/50 shadow-lg animate-pendulum"
-                style={{
-                  top: '120px',
-                  animation: 'pendulum 2s ease-in-out infinite',
-                }}
-              />
+            {/* Pendulum - attached to bottom of clock */}
+            <div className="relative -mt-4 w-full flex justify-center">
+              <div className="relative h-32 flex justify-center">
+                {/* Pendulum rod */}
+                <div
+                  className="absolute top-0 w-0.5 h-24 bg-gradient-to-b from-primary/80 to-primary rounded-full origin-top"
+                  style={{
+                    animation: 'pendulum 2s ease-in-out infinite',
+                    transformOrigin: 'top center',
+                  }}
+                />
+                {/* Pendulum bob */}
+                <div
+                  className="absolute w-6 h-6 rounded-full bg-gradient-to-br from-primary to-accent border-2 border-primary/30 shadow-lg"
+                  style={{
+                    top: '90px',
+                    animation: 'pendulum 2s ease-in-out infinite',
+                    transformOrigin: 'top center',
+                    left: '50%',
+                    marginLeft: '-12px',
+                  }}
+                />
+              </div>
             </div>
 
             {/* Date Display */}

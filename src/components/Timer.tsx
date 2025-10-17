@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AlarmClock, Play, Pause, RotateCcw, Plus, Minus } from "lucide-react";
 import { toast } from "sonner";
-import { CircularProgress } from "./CircularProgress";
+import { SandClock } from "./SandClock";
 
 export const Timer = () => {
   const [hours, setHours] = useState(0);
@@ -158,22 +158,12 @@ export const Timer = () => {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center mb-10">
-              <div className="relative mb-8">
-                <CircularProgress 
-                  progress={progressPercentage}
-                  size={200}
-                  strokeWidth={12}
-                  color="hsl(var(--accent))"
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="digital-display text-3xl text-accent font-bold">
-                      {Math.floor(progressPercentage)}%
-                    </div>
-                  </div>
-                </div>
+              {/* Sand Clock Visualization */}
+              <div className="mb-8">
+                <SandClock progress={progressPercentage} />
               </div>
 
+              {/* Time Display */}
               <div className="flex items-center gap-2 md:gap-3">
                 <div className="digital-display text-5xl md:text-7xl text-primary glow-text">
                   {displayTime.hours}

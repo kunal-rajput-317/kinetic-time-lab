@@ -135,6 +135,16 @@ export default {
             transform: "scale(1)",
           },
         },
+        "sand-fall": {
+          "0%": {
+            transform: "translateY(-20px)",
+            opacity: "1",
+          },
+          "100%": {
+            transform: "translateY(20px)",
+            opacity: "0",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -144,6 +154,7 @@ export default {
         "fade-in": "fade-in 0.5s ease-out",
         "slide-in": "slide-in 0.4s ease-out",
         "scale-in": "scale-in 0.3s ease-out",
+        "sand-fall": "sand-fall 1s ease-in infinite",
       },
     },
   },

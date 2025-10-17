@@ -43,109 +43,135 @@ export const AnalogClock = () => {
             <h2 className="text-3xl md:text-4xl font-bold text-card-foreground">Analog Clock</h2>
           </div>
 
-          {/* Clock Container */}
+          {/* Pendulum Clock Container */}
           <div className="flex flex-col items-center">
-            {/* Clock Face */}
-            <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full border-8 border-primary/30 bg-card/50 shadow-2xl backdrop-blur-sm z-10">
-              {/* Clock center decorative ring */}
-              <div className="absolute inset-4 rounded-full border-2 border-secondary/20" />
+            {/* Clock Case */}
+            <div className="relative bg-gradient-to-br from-card via-card/95 to-card/90 rounded-3xl p-6 shadow-2xl border-4 border-primary/20 backdrop-blur-sm">
+              {/* Decorative top */}
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-32 h-12 bg-gradient-to-b from-primary/30 to-transparent rounded-t-full border-t-4 border-x-4 border-primary/20" />
               
-              {/* Hour markers */}
-              {[...Array(12)].map((_, i) => {
-                const angle = (i * 30 - 90) * (Math.PI / 180);
-                const x = 50 + 38 * Math.cos(angle);
-                const y = 50 + 38 * Math.sin(angle);
-                return (
+              {/* Clock Face */}
+              <div className="relative w-56 h-56 md:w-64 md:h-64 rounded-full border-8 border-primary/30 bg-card/80 shadow-xl backdrop-blur-sm mb-6">
+                {/* Clock center decorative ring */}
+                <div className="absolute inset-4 rounded-full border-2 border-secondary/20" />
+                
+                {/* Hour markers */}
+                {[...Array(12)].map((_, i) => {
+                  const angle = (i * 30 - 90) * (Math.PI / 180);
+                  const x = 50 + 38 * Math.cos(angle);
+                  const y = 50 + 38 * Math.sin(angle);
+                  return (
+                    <div
+                      key={i}
+                      className="absolute w-2 h-2 rounded-full bg-primary"
+                      style={{
+                        left: `${x}%`,
+                        top: `${y}%`,
+                        transform: 'translate(-50%, -50%)',
+                      }}
+                    />
+                  );
+                })}
+
+                {/* Hour numbers */}
+                {[12, 3, 6, 9].map((num) => {
+                  const angle = ((num === 12 ? 0 : num) * 30 - 90) * (Math.PI / 180);
+                  const x = 50 + 42 * Math.cos(angle);
+                  const y = 50 + 42 * Math.sin(angle);
+                  return (
+                    <div
+                      key={num}
+                      className="absolute text-xl md:text-2xl font-bold text-card-foreground digital-display"
+                      style={{
+                        left: `${x}%`,
+                        top: `${y}%`,
+                        transform: 'translate(-50%, -50%)',
+                      }}
+                    >
+                      {num}
+                    </div>
+                  );
+                })}
+
+                {/* Hour hand */}
+                <div
+                  className="absolute left-1/2 bottom-1/2 origin-bottom w-2 bg-primary rounded-full transition-transform duration-1000 shadow-lg"
+                  style={{
+                    height: '25%',
+                    transform: `translateX(-50%) rotate(${hourDegrees}deg)`,
+                  }}
+                />
+
+                {/* Minute hand */}
+                <div
+                  className="absolute left-1/2 bottom-1/2 origin-bottom w-1.5 bg-secondary rounded-full transition-transform duration-1000 shadow-lg"
+                  style={{
+                    height: '35%',
+                    transform: `translateX(-50%) rotate(${minuteDegrees}deg)`,
+                  }}
+                />
+
+                {/* Second hand */}
+                <div
+                  className="absolute left-1/2 bottom-1/2 origin-bottom w-1 bg-accent rounded-full transition-transform duration-1000 shadow-lg"
+                  style={{
+                    height: '38%',
+                    transform: `translateX(-50%) rotate(${secondDegrees}deg)`,
+                  }}
+                />
+
+                {/* Center dot */}
+                <div className="absolute left-1/2 top-1/2 w-4 h-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary border-2 border-card shadow-lg" />
+              </div>
+
+              {/* Pendulum Window */}
+              <div className="relative h-64 md:h-80 w-48 md:w-56 mx-auto bg-gradient-to-b from-card/30 via-card/20 to-card/30 rounded-2xl border-4 border-primary/20 backdrop-blur-sm overflow-hidden">
+                {/* Decorative window frame */}
+                <div className="absolute inset-2 border-2 border-primary/10 rounded-xl pointer-events-none" />
+                
+                {/* Pendulum mechanism */}
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 w-full h-full flex justify-center">
+                  {/* Anchor point */}
+                  <div className="absolute top-0 w-6 h-6 rounded-full bg-primary border-2 border-primary/50 shadow-lg z-10" />
+                  
+                  {/* Pendulum rod */}
                   <div
-                    key={i}
-                    className="absolute w-2 h-2 rounded-full bg-primary"
+                    className="absolute w-1.5 bg-gradient-to-b from-primary via-primary/90 to-primary/80 rounded-full shadow-lg"
                     style={{
-                      left: `${x}%`,
-                      top: `${y}%`,
-                      transform: 'translate(-50%, -50%)',
+                      height: '60%',
+                      top: '20px',
+                      transformOrigin: 'top center',
+                      animation: 'pendulum 2s ease-in-out infinite',
                     }}
                   />
-                );
-              })}
-
-              {/* Hour numbers */}
-              {[12, 3, 6, 9].map((num) => {
-                const angle = ((num === 12 ? 0 : num) * 30 - 90) * (Math.PI / 180);
-                const x = 50 + 42 * Math.cos(angle);
-                const y = 50 + 42 * Math.sin(angle);
-                return (
+                  
+                  {/* Pendulum bob (weight) */}
                   <div
-                    key={num}
-                    className="absolute text-xl md:text-2xl font-bold text-card-foreground digital-display"
+                    className="absolute w-16 h-20 rounded-full bg-gradient-to-br from-primary via-accent to-primary border-4 border-primary/40 shadow-2xl"
                     style={{
-                      left: `${x}%`,
-                      top: `${y}%`,
-                      transform: 'translate(-50%, -50%)',
+                      top: 'calc(20px + 60% - 40px)',
+                      transformOrigin: 'top center',
+                      animation: 'pendulum 2s ease-in-out infinite',
+                      boxShadow: '0 10px 40px rgba(0,0,0,0.3), inset 0 2px 10px rgba(255,255,255,0.2)',
                     }}
                   >
-                    {num}
+                    {/* Decorative rings on bob */}
+                    <div className="absolute inset-2 border-2 border-primary/30 rounded-full" />
+                    <div className="absolute inset-4 border border-primary/20 rounded-full" />
                   </div>
-                );
-              })}
+                </div>
 
-              {/* Hour hand */}
-              <div
-                className="absolute left-1/2 bottom-1/2 origin-bottom w-2 bg-primary rounded-full transition-transform duration-1000 shadow-lg"
-                style={{
-                  height: '25%',
-                  transform: `translateX(-50%) rotate(${hourDegrees}deg)`,
-                }}
-              />
-
-              {/* Minute hand */}
-              <div
-                className="absolute left-1/2 bottom-1/2 origin-bottom w-1.5 bg-secondary rounded-full transition-transform duration-1000 shadow-lg"
-                style={{
-                  height: '35%',
-                  transform: `translateX(-50%) rotate(${minuteDegrees}deg)`,
-                }}
-              />
-
-              {/* Second hand */}
-              <div
-                className="absolute left-1/2 bottom-1/2 origin-bottom w-1 bg-accent rounded-full transition-transform duration-1000 shadow-lg"
-                style={{
-                  height: '38%',
-                  transform: `translateX(-50%) rotate(${secondDegrees}deg)`,
-                }}
-              />
-
-              {/* Center dot */}
-              <div className="absolute left-1/2 top-1/2 w-4 h-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary border-2 border-card shadow-lg" />
-            </div>
-
-            {/* Pendulum - attached to bottom of clock */}
-            <div className="relative -mt-4 w-full flex justify-center">
-              <div className="relative h-32 flex justify-center">
-                {/* Pendulum rod */}
-                <div
-                  className="absolute top-0 w-0.5 h-24 bg-gradient-to-b from-primary/80 to-primary rounded-full origin-top"
-                  style={{
-                    animation: 'pendulum 2s ease-in-out infinite',
-                    transformOrigin: 'top center',
-                  }}
-                />
-                {/* Pendulum bob */}
-                <div
-                  className="absolute w-6 h-6 rounded-full bg-gradient-to-br from-primary to-accent border-2 border-primary/30 shadow-lg"
-                  style={{
-                    top: '90px',
-                    animation: 'pendulum 2s ease-in-out infinite',
-                    transformOrigin: 'top center',
-                    left: '50%',
-                    marginLeft: '-12px',
-                  }}
-                />
+                {/* Decorative side panels */}
+                <div className="absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-r from-primary/10 to-transparent" />
+                <div className="absolute right-0 top-0 bottom-0 w-2 bg-gradient-to-l from-primary/10 to-transparent" />
               </div>
+
+              {/* Clock base */}
+              <div className="mt-6 h-8 bg-gradient-to-b from-primary/20 to-primary/30 rounded-b-2xl border-t-2 border-primary/20" />
             </div>
 
             {/* Date Display */}
-            <div className="flex items-center justify-center gap-3 p-4 rounded-2xl bg-card-foreground/10 border border-card-foreground/20 max-w-lg">
+            <div className="mt-8 flex items-center justify-center gap-3 p-4 rounded-2xl bg-card-foreground/10 border border-card-foreground/20 max-w-lg">
               <p className="text-lg md:text-xl text-card-foreground font-medium">
                 {formatDate(time)}
               </p>

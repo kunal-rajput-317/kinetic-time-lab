@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Timer, Play, Pause, RotateCcw, Flag } from "lucide-react";
-import sandClockImage from "@/assets/sand-clock.jpeg";
+import { CircularProgress } from "./CircularProgress";
 
 export const Stopwatch = () => {
   const [isRunning, setIsRunning] = useState(false);
@@ -72,16 +72,14 @@ export const Stopwatch = () => {
 
           <div className="flex flex-col items-center justify-center mb-10">
             <div className="relative mb-8">
-              <img 
-                src={sandClockImage} 
-                alt="Sand Clock" 
-                className="w-48 h-48 object-contain drop-shadow-2xl"
-                style={{
-                  filter: 'drop-shadow(0 0 20px hsl(var(--primary) / 0.3))'
-                }}
+              <CircularProgress 
+                progress={progressPercentage}
+                size={180}
+                strokeWidth={10}
+                color="hsl(var(--secondary))"
               />
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="text-center bg-background/80 backdrop-blur-sm px-4 py-2 rounded-lg">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center">
                   <div className="digital-display text-2xl text-secondary font-bold">
                     {seconds}
                   </div>

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AlarmClock, Play, Pause, RotateCcw, Plus, Minus } from "lucide-react";
 import { toast } from "sonner";
-import { SandClock } from "./SandClock";
+import sandClockImage from "@/assets/sand-clock-timer.jpeg";
 
 export const Timer = () => {
   const [hours, setHours] = useState(0);
@@ -159,8 +159,36 @@ export const Timer = () => {
           ) : (
             <div className="flex flex-col items-center justify-center mb-10">
               {/* Sand Clock Visualization */}
-              <div className="mb-8">
-                <SandClock progress={progressPercentage} />
+              <div className="mb-8 relative">
+                <div 
+                  className="relative w-64 h-64 transition-transform duration-1000"
+                  style={{
+                    transform: `rotate(${progressPercentage >= 100 ? 180 : 0}deg)`,
+                  }}
+                >
+                  <img 
+                    src={sandClockImage} 
+                    alt="Sand Clock Timer" 
+                    className="w-full h-full object-contain drop-shadow-2xl"
+                    style={{
+                      filter: `drop-shadow(0 0 20px hsl(var(--primary) / ${0.3 + (progressPercentage / 200)}))`,
+                    }}
+                  />
+                  {/* Progress overlay */}
+                  <div 
+                    className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-primary/20 pointer-events-none transition-all duration-300"
+                    style={{
+                      opacity: progressPercentage / 100,
+                    }}
+                  />
+                </div>
+                {/* Progress percentage display */}
+                <div className="text-center mt-4">
+                  <div className="digital-display text-2xl text-primary font-bold">
+                    {Math.round(progressPercentage)}%
+                  </div>
+                  <div className="text-xs text-muted-foreground">Progress</div>
+                </div>
               </div>
 
               {/* Time Display */}

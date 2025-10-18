@@ -2,10 +2,11 @@ import { useState } from "react";
 import { AnalogClock } from "@/components/AnalogClock";
 import { Stopwatch } from "@/components/Stopwatch";
 import { Timer } from "@/components/Timer";
+import { AnimatedSandTimer } from "@/components/AnimatedSandTimer";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Clock, Timer as TimerIcon, Gauge, Sparkles } from "lucide-react";
+import { Clock, Timer as TimerIcon, Gauge, Sparkles, Hourglass } from "lucide-react";
 
-type Tab = "clock" | "stopwatch" | "timer";
+type Tab = "clock" | "stopwatch" | "timer" | "sandtimer";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<Tab>("clock");
@@ -14,6 +15,7 @@ const Index = () => {
     { id: "clock" as Tab, label: "Clock", icon: Clock, description: "Current time" },
     { id: "stopwatch" as Tab, label: "Stopwatch", icon: Gauge, description: "Track duration" },
     { id: "timer" as Tab, label: "Timer", icon: TimerIcon, description: "Countdown" },
+    { id: "sandtimer" as Tab, label: "Sand Timer", icon: Hourglass, description: "Hourglass" },
   ];
 
   return (
@@ -91,6 +93,7 @@ const Index = () => {
             {activeTab === "clock" && <AnalogClock />}
             {activeTab === "stopwatch" && <Stopwatch />}
             {activeTab === "timer" && <Timer />}
+            {activeTab === "sandtimer" && <AnimatedSandTimer />}
           </div>
         </main>
 

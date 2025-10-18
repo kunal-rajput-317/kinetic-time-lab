@@ -1,24 +1,62 @@
-import { useState, useEffect } from "react";
-import { Clock as ClockIcon } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Clock as ClockIcon, Volume2, VolumeX, Moon, Zap } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const AnalogClock = () => {
   const [time, setTime] = useState(new Date());
+  const [soundEnabled, setSoundEnabled] = useState(false);
+  const [mode, setMode] = useState<'vintage' | 'futuristic'>('futuristic');
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setTime(new Date());
+      
+      // Play tick sound if enabled
+      if (soundEnabled && audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play().catch(() => {});
+      }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [soundEnabled]);
+
+  // Create tick sound using Web Audio API
+  useEffect(() => {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const audio = new Audio();
+    
+    const createTickSound = () => {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.value = mode === 'vintage' ? 800 : 1200;
+      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.1);
+    };
+    
+    audioRef.current = audio;
+    
+    return () => {
+      audioContext.close();
+    };
+  }, [mode]);
 
   const hours = time.getHours() % 12;
   const minutes = time.getMinutes();
   const seconds = time.getSeconds();
+  const milliseconds = time.getMilliseconds();
 
-  const hourDegrees = (hours * 30) + (minutes * 0.5);
-  const minuteDegrees = minutes * 6;
-  const secondDegrees = seconds * 6;
+  const hourDegrees = (hours * 30) + (minutes * 0.5) + (seconds * 0.00833);
+  const minuteDegrees = minutes * 6 + (seconds * 0.1);
+  const secondDegrees = seconds * 6 + (milliseconds * 0.006);
 
   const formatDate = (date: Date) => {
     const options: Intl.DateTimeFormatOptions = {
@@ -30,151 +68,294 @@ export const AnalogClock = () => {
     return date.toLocaleDateString("en-US", options);
   };
 
+  const formatDigitalTime = (date: Date) => {
+    return date.toLocaleTimeString("en-US", { 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      second: '2-digit',
+      hour12: true 
+    });
+  };
+
+  const romanNumerals = ['XII', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI'];
+
   return (
     <div className="w-full animate-scale-in">
-      <div className="glass-card p-8 md:p-12 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
+      <div className="glass-card p-4 md:p-8 relative overflow-hidden">
+        {/* Background effects */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 opacity-95 pointer-events-none" />
+        <div className={`absolute inset-0 ${mode === 'futuristic' ? 'bg-gradient-to-br from-primary/10 via-transparent to-accent/10' : 'bg-gradient-to-br from-amber-900/20 via-transparent to-amber-700/20'} pointer-events-none`} />
         
+        {/* Ambient particles */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={i}
+              className={`absolute w-1 h-1 rounded-full ${mode === 'futuristic' ? 'bg-primary' : 'bg-amber-500'}`}
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animation: `float ${3 + Math.random() * 4}s ease-in-out infinite`,
+                animationDelay: `${Math.random() * 2}s`,
+                opacity: 0.3 + Math.random() * 0.4,
+              }}
+            />
+          ))}
+        </div>
+
         <div className="relative z-10">
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <div className="p-3 rounded-2xl bg-primary/20 border border-primary/30">
-              <ClockIcon className="w-7 h-7 text-primary" />
+          {/* Header with controls */}
+          <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+            <div className="flex items-center gap-3">
+              <div className={`p-3 rounded-2xl ${mode === 'futuristic' ? 'bg-primary/20 border border-primary/40' : 'bg-amber-900/30 border border-amber-700/50'} backdrop-blur-sm`}>
+                <ClockIcon className={`w-6 h-6 ${mode === 'futuristic' ? 'text-primary' : 'text-amber-500'}`} />
+              </div>
+              <h2 className="text-2xl md:text-3xl font-bold text-white glow-text">Pendulum Clock</h2>
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-card-foreground">Analog Clock</h2>
+            
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setSoundEnabled(!soundEnabled)}
+                variant="outline"
+                size="sm"
+                className={`${mode === 'futuristic' ? 'border-primary/40 hover:bg-primary/20' : 'border-amber-700/50 hover:bg-amber-900/30'} backdrop-blur-sm`}
+              >
+                {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+              </Button>
+              
+              <Button
+                onClick={() => setMode(mode === 'vintage' ? 'futuristic' : 'vintage')}
+                variant="outline"
+                size="sm"
+                className={`${mode === 'futuristic' ? 'border-primary/40 hover:bg-primary/20' : 'border-amber-700/50 hover:bg-amber-900/30'} backdrop-blur-sm`}
+              >
+                {mode === 'futuristic' ? <Zap className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </Button>
+            </div>
           </div>
 
-          {/* Pendulum Clock Container */}
+          {/* Main Clock Container */}
           <div className="flex flex-col items-center">
-            {/* Clock Case */}
-            <div className="relative bg-gradient-to-br from-card via-card/95 to-card/90 rounded-3xl p-6 shadow-2xl border-4 border-primary/20 backdrop-blur-sm">
-              {/* Decorative top */}
-              <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-32 h-12 bg-gradient-to-b from-primary/30 to-transparent rounded-t-full border-t-4 border-x-4 border-primary/20" />
-              
-              {/* Clock Face */}
-              <div className="relative w-56 h-56 md:w-64 md:h-64 rounded-full border-8 border-primary/30 bg-card/80 shadow-xl backdrop-blur-sm mb-6">
-                {/* Clock center decorative ring */}
-                <div className="absolute inset-4 rounded-full border-2 border-secondary/20" />
+            {/* Clock with spotlight effect */}
+            <div 
+              className="relative group perspective-1000"
+              style={{
+                filter: `drop-shadow(0 0 80px ${mode === 'futuristic' ? 'hsl(var(--primary) / 0.4)' : 'rgba(217, 119, 6, 0.4)'})`,
+              }}
+            >
+              {/* Clock Case */}
+              <div 
+                className={`relative ${mode === 'futuristic' ? 'bg-gradient-to-br from-gray-900/90 via-gray-800/90 to-gray-900/90' : 'bg-gradient-to-br from-amber-950/90 via-amber-900/80 to-amber-950/90'} rounded-full p-8 shadow-2xl border-8 ${mode === 'futuristic' ? 'border-primary/30' : 'border-amber-700/50'} backdrop-blur-xl transition-all duration-700 hover:scale-105 hover:rotate-y-12`}
+                style={{
+                  width: '380px',
+                  height: '380px',
+                  boxShadow: `0 20px 80px ${mode === 'futuristic' ? 'hsl(var(--primary) / 0.3)' : 'rgba(217, 119, 6, 0.3)'}, inset 0 2px 20px rgba(255,255,255,0.05)`,
+                }}
+              >
+                {/* Holographic rings */}
+                {mode === 'futuristic' && (
+                  <>
+                    <div className="absolute inset-0 rounded-full border border-primary/20 animate-glow-pulse" />
+                    <div className="absolute inset-4 rounded-full border border-primary/15" style={{ animationDelay: '0.3s' }} />
+                    <div className="absolute inset-8 rounded-full border border-primary/10" style={{ animationDelay: '0.6s' }} />
+                  </>
+                )}
                 
-                {/* Hour markers */}
-                {[...Array(12)].map((_, i) => {
-                  const angle = (i * 30 - 90) * (Math.PI / 180);
-                  const x = 50 + 38 * Math.cos(angle);
-                  const y = 50 + 38 * Math.sin(angle);
-                  return (
-                    <div
-                      key={i}
-                      className="absolute w-2 h-2 rounded-full bg-primary"
-                      style={{
-                        left: `${x}%`,
-                        top: `${y}%`,
-                        transform: 'translate(-50%, -50%)',
-                      }}
-                    />
-                  );
-                })}
-
-                {/* Hour numbers */}
-                {[12, 3, 6, 9].map((num) => {
-                  const angle = ((num === 12 ? 0 : num) * 30 - 90) * (Math.PI / 180);
-                  const x = 50 + 42 * Math.cos(angle);
-                  const y = 50 + 42 * Math.sin(angle);
-                  return (
-                    <div
-                      key={num}
-                      className="absolute text-xl md:text-2xl font-bold text-card-foreground digital-display"
-                      style={{
-                        left: `${x}%`,
-                        top: `${y}%`,
-                        transform: 'translate(-50%, -50%)',
-                      }}
-                    >
-                      {num}
-                    </div>
-                  );
-                })}
-
-                {/* Hour hand */}
-                <div
-                  className="absolute left-1/2 bottom-1/2 origin-bottom w-2 bg-primary rounded-full transition-transform duration-1000 shadow-lg"
+                {/* Clock Face */}
+                <div 
+                  className={`relative w-full h-full rounded-full ${mode === 'futuristic' ? 'bg-gradient-to-br from-gray-950/90 to-gray-900/90 border-4 border-primary/20' : 'bg-gradient-to-br from-amber-950/90 to-amber-900/90 border-4 border-amber-700/40'} backdrop-blur-xl shadow-inner`}
                   style={{
-                    height: '25%',
-                    transform: `translateX(-50%) rotate(${hourDegrees}deg)`,
+                    boxShadow: `inset 0 4px 30px ${mode === 'futuristic' ? 'hsl(var(--primary) / 0.2)' : 'rgba(217, 119, 6, 0.2)'}`,
                   }}
-                />
-
-                {/* Minute hand */}
-                <div
-                  className="absolute left-1/2 bottom-1/2 origin-bottom w-1.5 bg-secondary rounded-full transition-transform duration-1000 shadow-lg"
-                  style={{
-                    height: '35%',
-                    transform: `translateX(-50%) rotate(${minuteDegrees}deg)`,
-                  }}
-                />
-
-                {/* Second hand */}
-                <div
-                  className="absolute left-1/2 bottom-1/2 origin-bottom w-1 bg-accent rounded-full transition-transform duration-1000 shadow-lg"
-                  style={{
-                    height: '38%',
-                    transform: `translateX(-50%) rotate(${secondDegrees}deg)`,
-                  }}
-                />
-
-                {/* Center dot */}
-                <div className="absolute left-1/2 top-1/2 w-4 h-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary border-2 border-card shadow-lg" />
-              </div>
-
-              {/* Pendulum Window */}
-              <div className="relative h-64 md:h-80 w-48 md:w-56 mx-auto bg-gradient-to-b from-card/30 via-card/20 to-card/30 rounded-2xl border-4 border-primary/20 backdrop-blur-sm overflow-hidden">
-                {/* Decorative window frame */}
-                <div className="absolute inset-2 border-2 border-primary/10 rounded-xl pointer-events-none" />
-                
-                {/* Pendulum mechanism */}
-                <div className="absolute top-4 left-1/2 -translate-x-1/2 w-full h-full flex justify-center">
-                  {/* Anchor point */}
-                  <div className="absolute top-0 w-6 h-6 rounded-full bg-primary border-2 border-primary/50 shadow-lg z-10" />
+                >
+                  {/* Decorative inner ring with metallic sheen */}
+                  <div className={`absolute inset-8 rounded-full border-2 ${mode === 'futuristic' ? 'border-primary/30' : 'border-amber-600/40'}`} style={{
+                    background: mode === 'futuristic' 
+                      ? 'linear-gradient(135deg, transparent 0%, hsl(var(--primary) / 0.05) 50%, transparent 100%)'
+                      : 'linear-gradient(135deg, transparent 0%, rgba(217, 119, 6, 0.1) 50%, transparent 100%)'
+                  }} />
                   
-                  {/* Pendulum rod */}
+                  {/* Roman Numerals with glow */}
+                  {romanNumerals.map((numeral, i) => {
+                    const angle = (i * 30 - 90) * (Math.PI / 180);
+                    const radius = 42;
+                    const x = 50 + radius * Math.cos(angle);
+                    const y = 50 + radius * Math.sin(angle);
+                    
+                    return (
+                      <div
+                        key={i}
+                        className={`absolute text-xl md:text-2xl font-bold ${mode === 'futuristic' ? 'text-primary glow-text' : 'text-amber-400'}`}
+                        style={{
+                          left: `${x}%`,
+                          top: `${y}%`,
+                          transform: 'translate(-50%, -50%)',
+                          fontFamily: 'Georgia, serif',
+                          textShadow: mode === 'futuristic' 
+                            ? '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary) / 0.5)'
+                            : '0 0 10px rgba(217, 119, 6, 0.8), 0 0 20px rgba(217, 119, 6, 0.4)',
+                        }}
+                      >
+                        {numeral}
+                      </div>
+                    );
+                  })}
+
+                  {/* Hour markers */}
+                  {[...Array(60)].map((_, i) => {
+                    if (i % 5 === 0) return null; // Skip positions with numerals
+                    const angle = (i * 6 - 90) * (Math.PI / 180);
+                    const radius = 44;
+                    const x = 50 + radius * Math.cos(angle);
+                    const y = 50 + radius * Math.sin(angle);
+                    
+                    return (
+                      <div
+                        key={i}
+                        className={`absolute w-0.5 h-1.5 ${mode === 'futuristic' ? 'bg-primary/40' : 'bg-amber-600/40'}`}
+                        style={{
+                          left: `${x}%`,
+                          top: `${y}%`,
+                          transform: `translate(-50%, -50%) rotate(${i * 6}deg)`,
+                        }}
+                      />
+                    );
+                  })}
+
+                  {/* Hour hand with glow */}
                   <div
-                    className="absolute w-1.5 bg-gradient-to-b from-primary via-primary/90 to-primary/80 rounded-full shadow-lg"
+                    className={`absolute left-1/2 bottom-1/2 origin-bottom rounded-full ${mode === 'futuristic' ? 'bg-gradient-to-t from-primary to-primary/80' : 'bg-gradient-to-t from-amber-500 to-amber-400'}`}
                     style={{
-                      height: '60%',
-                      top: '20px',
-                      transformOrigin: 'top center',
-                      animation: 'pendulum 2s ease-in-out infinite',
+                      width: '6px',
+                      height: '28%',
+                      transform: `translateX(-50%) rotate(${hourDegrees}deg)`,
+                      transition: 'transform 0.5s cubic-bezier(0.4, 0.0, 0.2, 1)',
+                      boxShadow: mode === 'futuristic' 
+                        ? '0 0 15px hsl(var(--primary)), 0 0 30px hsl(var(--primary) / 0.5)'
+                        : '0 0 15px rgba(217, 119, 6, 0.8), 0 0 30px rgba(217, 119, 6, 0.4)',
                     }}
                   />
-                  
-                  {/* Pendulum bob (weight) */}
-                  <div
-                    className="absolute w-16 h-20 rounded-full bg-gradient-to-br from-primary via-accent to-primary border-4 border-primary/40 shadow-2xl"
-                    style={{
-                      top: 'calc(20px + 60% - 40px)',
-                      transformOrigin: 'top center',
-                      animation: 'pendulum 2s ease-in-out infinite',
-                      boxShadow: '0 10px 40px rgba(0,0,0,0.3), inset 0 2px 10px rgba(255,255,255,0.2)',
-                    }}
-                  >
-                    {/* Decorative rings on bob */}
-                    <div className="absolute inset-2 border-2 border-primary/30 rounded-full" />
-                    <div className="absolute inset-4 border border-primary/20 rounded-full" />
-                  </div>
-                </div>
 
-                {/* Decorative side panels */}
-                <div className="absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-r from-primary/10 to-transparent" />
-                <div className="absolute right-0 top-0 bottom-0 w-2 bg-gradient-to-l from-primary/10 to-transparent" />
+                  {/* Minute hand with glow */}
+                  <div
+                    className={`absolute left-1/2 bottom-1/2 origin-bottom rounded-full ${mode === 'futuristic' ? 'bg-gradient-to-t from-secondary to-secondary/80' : 'bg-gradient-to-t from-amber-300 to-amber-200'}`}
+                    style={{
+                      width: '4px',
+                      height: '38%',
+                      transform: `translateX(-50%) rotate(${minuteDegrees}deg)`,
+                      transition: 'transform 0.5s cubic-bezier(0.4, 0.0, 0.2, 1)',
+                      boxShadow: mode === 'futuristic' 
+                        ? '0 0 12px hsl(var(--secondary)), 0 0 25px hsl(var(--secondary) / 0.5)'
+                        : '0 0 12px rgba(252, 211, 77, 0.8), 0 0 25px rgba(252, 211, 77, 0.4)',
+                    }}
+                  />
+
+                  {/* Second hand with pulse glow */}
+                  <div
+                    className={`absolute left-1/2 bottom-1/2 origin-bottom rounded-full ${mode === 'futuristic' ? 'bg-accent' : 'bg-red-500'}`}
+                    style={{
+                      width: '2px',
+                      height: '42%',
+                      transform: `translateX(-50%) rotate(${secondDegrees}deg)`,
+                      transition: 'transform 0.05s linear',
+                      boxShadow: mode === 'futuristic' 
+                        ? '0 0 10px hsl(var(--accent)), 0 0 20px hsl(var(--accent) / 0.6)'
+                        : '0 0 10px rgba(239, 68, 68, 0.8), 0 0 20px rgba(239, 68, 68, 0.5)',
+                      animation: 'glow-pulse 1s ease-in-out infinite',
+                    }}
+                  />
+
+                  {/* Center hub with metallic effect */}
+                  <div 
+                    className={`absolute left-1/2 top-1/2 w-5 h-5 -translate-x-1/2 -translate-y-1/2 rounded-full ${mode === 'futuristic' ? 'bg-gradient-to-br from-primary via-primary/90 to-primary/70 border-2 border-primary/50' : 'bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 border-2 border-amber-300/50'}`}
+                    style={{
+                      boxShadow: mode === 'futuristic'
+                        ? '0 0 20px hsl(var(--primary)), inset 0 2px 5px rgba(255,255,255,0.3)'
+                        : '0 0 20px rgba(217, 119, 6, 0.8), inset 0 2px 5px rgba(255,255,255,0.3)',
+                    }}
+                  />
+                </div>
               </div>
 
-              {/* Clock base */}
-              <div className="mt-6 h-8 bg-gradient-to-b from-primary/20 to-primary/30 rounded-b-2xl border-t-2 border-primary/20" />
+              {/* Pendulum mechanism below clock */}
+              <div 
+                className={`relative mt-8 h-48 w-32 mx-auto ${mode === 'futuristic' ? 'bg-gradient-to-b from-gray-900/60 via-gray-800/40 to-gray-900/60' : 'bg-gradient-to-b from-amber-950/60 via-amber-900/40 to-amber-950/60'} rounded-2xl border-2 ${mode === 'futuristic' ? 'border-primary/20' : 'border-amber-700/30'} backdrop-blur-xl overflow-hidden`}
+                style={{
+                  boxShadow: `inset 0 2px 20px ${mode === 'futuristic' ? 'hsl(var(--primary) / 0.1)' : 'rgba(217, 119, 6, 0.1)'}`,
+                }}
+              >
+                {/* Glass reflection effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
+                
+                {/* Pendulum anchor */}
+                <div className={`absolute top-2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full ${mode === 'futuristic' ? 'bg-primary border-2 border-primary/50' : 'bg-amber-500 border-2 border-amber-400/50'} shadow-lg z-10`} />
+                
+                {/* Pendulum rod with smooth sine wave motion */}
+                <div
+                  className={`absolute ${mode === 'futuristic' ? 'bg-gradient-to-b from-primary via-primary/90 to-primary/80' : 'bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600'} rounded-full`}
+                  style={{
+                    width: '3px',
+                    height: '60%',
+                    top: '12px',
+                    left: '50%',
+                    transformOrigin: 'top center',
+                    transform: 'translateX(-50%)',
+                    animation: `pendulum-smooth 2s ease-in-out infinite`,
+                    boxShadow: mode === 'futuristic'
+                      ? '0 0 10px hsl(var(--primary) / 0.6)'
+                      : '0 0 10px rgba(217, 119, 6, 0.6)',
+                  }}
+                />
+                
+                {/* Pendulum bob (golden/chrome weight) */}
+                <div
+                  className={`absolute w-12 h-16 rounded-full ${mode === 'futuristic' ? 'bg-gradient-to-br from-primary via-accent to-primary' : 'bg-gradient-to-br from-amber-300 via-amber-400 to-amber-600'} border-3 shadow-2xl`}
+                  style={{
+                    top: 'calc(12px + 60% - 32px)',
+                    left: '50%',
+                    transformOrigin: 'top center',
+                    transform: 'translateX(-50%)',
+                    animation: `pendulum-smooth 2s ease-in-out infinite`,
+                    boxShadow: mode === 'futuristic'
+                      ? '0 10px 40px hsl(var(--primary) / 0.5), inset 0 2px 10px rgba(255,255,255,0.3), inset 0 -2px 10px rgba(0,0,0,0.3)'
+                      : '0 10px 40px rgba(217, 119, 6, 0.5), inset 0 2px 10px rgba(255,255,255,0.3), inset 0 -2px 10px rgba(0,0,0,0.3)',
+                  }}
+                >
+                  {/* Decorative engravings */}
+                  <div className={`absolute inset-2 border-2 ${mode === 'futuristic' ? 'border-primary/40' : 'border-amber-300/40'} rounded-full`} />
+                  <div className={`absolute inset-4 border ${mode === 'futuristic' ? 'border-primary/30' : 'border-amber-300/30'} rounded-full`} />
+                  
+                  {/* Chrome reflection */}
+                  <div className="absolute top-1 left-2 right-2 h-4 bg-gradient-to-b from-white/30 to-transparent rounded-full blur-sm" />
+                </div>
+              </div>
             </div>
 
-            {/* Date Display */}
-            <div className="mt-8 flex items-center justify-center gap-3 p-4 rounded-2xl bg-card-foreground/10 border border-card-foreground/20 max-w-lg">
-              <p className="text-lg md:text-xl text-card-foreground font-medium">
-                {formatDate(time)}
-              </p>
+            {/* Digital time and date display */}
+            <div className="mt-10 flex flex-col items-center gap-4 w-full max-w-md">
+              {/* Digital time */}
+              <div className={`w-full p-4 rounded-2xl ${mode === 'futuristic' ? 'bg-primary/10 border border-primary/30' : 'bg-amber-900/20 border border-amber-700/40'} backdrop-blur-xl`}>
+                <div className="text-center">
+                  <div className={`digital-display text-3xl md:text-4xl font-bold ${mode === 'futuristic' ? 'text-primary glow-text' : 'text-amber-400'}`}>
+                    {formatDigitalTime(time)}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">Digital Display</div>
+                </div>
+              </div>
+              
+              {/* Date display */}
+              <div className={`w-full p-4 rounded-2xl ${mode === 'futuristic' ? 'bg-secondary/10 border border-secondary/30' : 'bg-amber-900/20 border border-amber-700/40'} backdrop-blur-xl`}>
+                <p className={`text-center text-base md:text-lg ${mode === 'futuristic' ? 'text-secondary' : 'text-amber-300'} font-medium`}>
+                  {formatDate(time)}
+                </p>
+              </div>
+              
+              {/* Mode indicator */}
+              <div className="text-center text-sm text-muted-foreground">
+                Mode: <span className={`font-semibold ${mode === 'futuristic' ? 'text-primary' : 'text-amber-400'}`}>
+                  {mode === 'futuristic' ? 'Futuristic Holographic' : 'Vintage Mechanical'}
+                </span>
+              </div>
             </div>
           </div>
         </div>

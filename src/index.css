@@ -197,6 +197,26 @@ All colors MUST be HSL.
   }
 }
 
+@keyframes pendulum-smooth {
+  0% {
+    transform: translateX(-50%) rotate(-20deg);
+  }
+  50% {
+    transform: translateX(-50%) rotate(20deg);
+  }
+  100% {
+    transform: translateX(-50%) rotate(-20deg);
+  }
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.rotate-y-12 {
+  transform: rotateY(12deg);
+}
+
 @keyframes sand-fall {
   0% {
     transform: translateY(-20px);

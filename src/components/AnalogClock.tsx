@@ -6,48 +6,130 @@ export const AnalogClock = () => {
   const [time, setTime] = useState(new Date());
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [mode, setMode] = useState<'vintage' | 'futuristic'>('futuristic');
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const tickToggleRef = useRef(false);
+
+  useEffect(() => {
+    // Initialize Web Audio Context
+    audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    
+    return () => {
+      audioContextRef.current?.close();
+    };
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setTime(new Date());
       
-      // Play tick sound if enabled
-      if (soundEnabled && audioRef.current) {
-        audioRef.current.currentTime = 0;
-        audioRef.current.play().catch(() => {});
+      // Play realistic tick-tock sound if enabled
+      if (soundEnabled && audioContextRef.current) {
+        playClockTick();
       }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [soundEnabled]);
+  }, [soundEnabled, mode]);
 
-  // Create tick sound using Web Audio API
-  useEffect(() => {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const audio = new Audio();
+  const playClockTick = () => {
+    if (!audioContextRef.current) return;
     
-    const createTickSound = () => {
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      
-      oscillator.frequency.value = mode === 'vintage' ? 800 : 1200;
-      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-      
-      oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + 0.1);
-    };
+    const audioContext = audioContextRef.current;
+    const currentTime = audioContext.currentTime;
     
-    audioRef.current = audio;
+    // Alternate between tick and tock for authentic pendulum clock sound
+    const isTick = tickToggleRef.current;
+    tickToggleRef.current = !tickToggleRef.current;
     
-    return () => {
-      audioContext.close();
-    };
-  }, [mode]);
+    // Create multiple oscillators for richer, more realistic clock sound
+    if (mode === 'vintage') {
+      // Vintage mechanical clock sound - deep, wooden tick-tock
+      // Primary tone
+      const osc1 = audioContext.createOscillator();
+      const gain1 = audioContext.createGain();
+      osc1.connect(gain1);
+      gain1.connect(audioContext.destination);
+      
+      osc1.type = 'sine';
+      osc1.frequency.value = isTick ? 1200 : 1000; // Tick higher, tock lower
+      gain1.gain.setValueAtTime(0.15, currentTime);
+      gain1.gain.exponentialRampToValueAtTime(0.001, currentTime + 0.08);
+      
+      osc1.start(currentTime);
+      osc1.stop(currentTime + 0.08);
+      
+      // Add mechanical click (higher frequency short burst)
+      const clickOsc = audioContext.createOscillator();
+      const clickGain = audioContext.createGain();
+      clickOsc.connect(clickGain);
+      clickGain.connect(audioContext.destination);
+      
+      clickOsc.type = 'square';
+      clickOsc.frequency.value = isTick ? 2400 : 2000;
+      clickGain.gain.setValueAtTime(0.08, currentTime);
+      clickGain.gain.exponentialRampToValueAtTime(0.001, currentTime + 0.02);
+      
+      clickOsc.start(currentTime);
+      clickOsc.stop(currentTime + 0.02);
+      
+      // Bass resonance for wooden case effect
+      const bassOsc = audioContext.createOscillator();
+      const bassGain = audioContext.createGain();
+      bassOsc.connect(bassGain);
+      bassGain.connect(audioContext.destination);
+      
+      bassOsc.type = 'sine';
+      bassOsc.frequency.value = isTick ? 180 : 150;
+      bassGain.gain.setValueAtTime(0.06, currentTime);
+      bassGain.gain.exponentialRampToValueAtTime(0.001, currentTime + 0.12);
+      
+      bassOsc.start(currentTime);
+      bassOsc.stop(currentTime + 0.12);
+      
+    } else {
+      // Futuristic digital clock sound - crisp, precise, slightly electronic
+      const osc1 = audioContext.createOscillator();
+      const gain1 = audioContext.createGain();
+      osc1.connect(gain1);
+      gain1.connect(audioContext.destination);
+      
+      osc1.type = 'sine';
+      osc1.frequency.value = isTick ? 1800 : 1600;
+      gain1.gain.setValueAtTime(0.12, currentTime);
+      gain1.gain.exponentialRampToValueAtTime(0.001, currentTime + 0.06);
+      
+      osc1.start(currentTime);
+      osc1.stop(currentTime + 0.06);
+      
+      // High frequency ping for digital feel
+      const pingOsc = audioContext.createOscillator();
+      const pingGain = audioContext.createGain();
+      pingOsc.connect(pingGain);
+      pingGain.connect(audioContext.destination);
+      
+      pingOsc.type = 'sine';
+      pingOsc.frequency.value = isTick ? 3600 : 3200;
+      pingGain.gain.setValueAtTime(0.06, currentTime);
+      pingGain.gain.exponentialRampToValueAtTime(0.001, currentTime + 0.03);
+      
+      pingOsc.start(currentTime);
+      pingOsc.stop(currentTime + 0.03);
+      
+      // Subtle sub-bass for depth
+      const subOsc = audioContext.createOscillator();
+      const subGain = audioContext.createGain();
+      subOsc.connect(subGain);
+      subGain.connect(audioContext.destination);
+      
+      subOsc.type = 'sine';
+      subOsc.frequency.value = isTick ? 220 : 200;
+      subGain.gain.setValueAtTime(0.04, currentTime);
+      subGain.gain.exponentialRampToValueAtTime(0.001, currentTime + 0.08);
+      
+      subOsc.start(currentTime);
+      subOsc.stop(currentTime + 0.08);
+    }
+  };
 
   const hours = time.getHours() % 12;
   const minutes = time.getMinutes();

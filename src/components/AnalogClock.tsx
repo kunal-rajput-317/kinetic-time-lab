@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 export const AnalogClock = () => {
   const [time, setTime] = useState(new Date());
-  const [soundEnabled, setSoundEnabled] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
   const [mode, setMode] = useState<'vintage' | 'futuristic'>('futuristic');
   const audioContextRef = useRef<AudioContext | null>(null);
   const tickToggleRef = useRef(false);
